@@ -85,23 +85,23 @@ export function taskModal(id) {
 
   const previewTitle = document.createElement("div");
   previewTitle.className = "card-title";
-  previewTitle.textContent = task.title; // безопасно
+  previewTitle.textContent = task.title;
   preview.appendChild(previewTitle);
 
   const previewDesc = document.createElement("div");
   previewDesc.className = "small";
-  previewDesc.innerHTML = safeRenderMarkdown(task.description || ""); // безопасно
+  previewDesc.innerHTML = safeRenderMarkdown(task.description || "");
   preview.appendChild(previewDesc);
 
   modal.appendChild(preview);
 
   // live update
   title.addEventListener("input", () => {
-    previewTitle.textContent = title.value; // безопасно
+    previewTitle.textContent = title.value;
   });
 
   desc.addEventListener("input", () => {
-    previewDesc.innerHTML = safeRenderMarkdown(desc.value); // безопасный Markdown
+    previewDesc.innerHTML = safeRenderMarkdown(desc.value);
   });
 
   // Focus
