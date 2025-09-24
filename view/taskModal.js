@@ -1,5 +1,5 @@
 import { store } from "../utils/store.js";
-import { renderMarkdown } from "../utils/sanitize.js";
+import { sanitize, renderMarkdown } from "../utils/sanitize.js";
 
 export function taskModal(id) {
   const task = store.getTasks().find((t) => t.id === id);
@@ -65,19 +65,29 @@ export function taskModal(id) {
       location.hash = "/board";
     }
   });
-  buttons.appendChild(deleteBtn);
 
   const cancelBtn = document.createElement("button");
   cancelBtn.textContent = "Cancel";
   cancelBtn.addEventListener("click", () => (location.hash = "/board"));
   buttons.appendChild(cancelBtn);
+  buttons.appendChild(deleteBtn);
 
   modal.appendChild(buttons);
 
+
   // Preview
   const preview = document.createElement("div");
-  preview.className = "preview";
-  preview.innerHTML = renderMarkdown(task.description || "");
+  preview.className = "card";
+  const tit = document.createElement('div');
+  tit.className = "card-title"
+  preview.appendChild(tit);
+  tit.innerHTML = sanitize(task.title);
+  if (task.description) {
+      const desc = document.createElement('div');
+      desc.className = 'small';
+      desc.innerHTML = renderMarkdown(task.description || "");
+      preview.appendChild(desc);
+    }
   modal.appendChild(preview);
 
   desc.addEventListener("input", () => {
