@@ -1,6 +1,11 @@
 import { store } from "../utils/store.js";
 import { sanitize, renderMarkdown } from "../utils/sanitize.js";
 
+// безопасная функция рендеринга Markdown
+function safeRenderMarkdown(md) {
+  return sanitize(renderMarkdown(md));
+}
+
 export function taskModal(id) {
   const task = store.getTasks().find((t) => t.id === id);
   if (!task) {
@@ -40,7 +45,7 @@ export function taskModal(id) {
   descRow.appendChild(descLabel);
   modal.appendChild(descRow);
 
-  // Buttons: Save / Cancel / Delete
+  // Buttons
   const buttons = document.createElement("div");
   buttons.style.display = "flex";
   buttons.style.gap = "8px";
@@ -65,36 +70,41 @@ export function taskModal(id) {
       location.hash = "/board";
     }
   });
+  buttons.appendChild(deleteBtn);
 
   const cancelBtn = document.createElement("button");
   cancelBtn.textContent = "Cancel";
   cancelBtn.addEventListener("click", () => (location.hash = "/board"));
   buttons.appendChild(cancelBtn);
-  buttons.appendChild(deleteBtn);
 
   modal.appendChild(buttons);
-
 
   // Preview
   const preview = document.createElement("div");
   preview.className = "card";
-  const tit = document.createElement('div');
-  tit.className = "card-title"
-  preview.appendChild(tit);
-  tit.innerHTML = sanitize(task.title);
-  if (task.description) {
-      const desc = document.createElement('div');
-      desc.className = 'small';
-      desc.innerHTML = renderMarkdown(task.description || "");
-      preview.appendChild(desc);
-    }
+
+  const previewTitle = document.createElement("div");
+  previewTitle.className = "card-title";
+  previewTitle.textContent = task.title; // безопасно
+  preview.appendChild(previewTitle);
+
+  const previewDesc = document.createElement("div");
+  previewDesc.className = "small";
+  previewDesc.innerHTML = safeRenderMarkdown(task.description || ""); // безопасно
+  preview.appendChild(previewDesc);
+
   modal.appendChild(preview);
 
-  desc.addEventListener("input", () => {
-  preview.innerHTML = renderMarkdown(title.value);
+  // live update
+  title.addEventListener("input", () => {
+    previewTitle.textContent = title.value; // безопасно
   });
 
-  // Фокус-ловушка (простая): фокус — на первое поле
+  desc.addEventListener("input", () => {
+    previewDesc.innerHTML = safeRenderMarkdown(desc.value); // безопасный Markdown
+  });
+
+  // Focus
   setTimeout(() => title.focus(), 0);
 
   return overlay;

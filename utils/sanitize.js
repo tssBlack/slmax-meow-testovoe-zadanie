@@ -1,40 +1,42 @@
-// Базовое экранирование HTML
 export function escapeHTML(str) {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
-// Простейший markdown
 export function sanitize(str) {
-  if (!str) return "";
-  let s = escapeHTML(str);
-
-  s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-  s = s.replace(/_(.+?)_/g, "<i>$1</i>");
-  s = s.replace(/`(.+?)`/g, "<code>$1</code>");
-
-  return s.replace(/\n/g, "<br>");
+  return escapeHTML(str);
 }
 
-// для desc
-export function renderMarkdown(str) {
-  if (!str) return "";
-  let s = escapeHTML(str);
+export function renderMarkdown(raw) {
+  if (!raw) return '';
 
-  s = s.replace(/^### (.+)$/gm, "<h3>$1</h3>");
-  s = s.replace(/^## (.+)$/gm, "<h2>$1</h2>");
-  s = s.replace(/^# (.+)$/gm, "<h1>$1</h1>");
+  let s = escapeHTML(raw);
 
+  // 2)`code`
+  const codeMap = [];
+  s = s.replace(/`([^`]+?)`/g, (_, codeContent) => {
+    const idx = codeMap.push(codeContent) - 1;
+    return `@@CODE${idx}@@`;
+  });
 
-  s = s.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
-  s = s.replace(/_(.+?)_/g, "<i>$1</i>");
+  // **bold**
+  s = s.replace(/\*\*(.+?)\*\*/g, (_, g) => `<strong>${g}</strong>`);
 
-  s = s.replace(/`(.+?)`/g, "<code>$1</code>");
-  s = s.replace(/\[(.+?)\]\((https?:\/\/[^\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // _italic_
+  s = s.replace(/_(.+?)_/g, (_, g) => `<em>${g}</em>`);
+  s = s.replace(/\[([^\]]+?)\]\((https?:\/\/[^\s)]+)\)/g, (_, text, url) =>
+    `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`
+  );
 
-  return s.replace(/\n/g, "<br>");
+  s = s.replace(/\r\n|\r|\n/g, '<br>');
+  s = s.replace(/@@CODE(\d+)@@/g, (_, n) => {
+    const content = escapeHTML(codeMap[Number(n)]);
+    return `<code>${content}</code>`;
+  });
+
+  return s;
 }
