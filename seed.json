@@ -1,0 +1,9 @@
+{
+  "tasks": [
+    {"id":"t1","title":"Setup project","description":"Create project skeleton and files","status":"todo"},
+    {"id":"t2","title":"Implement store","description":"Design store.js with actions and undo","status":"inprogress"},
+    {"id":"t3","title":"Router and views","description":"Make simple hash router with #/board and #/task/:id","status":"todo"},
+    {"id":"t4","title":"Accessibility review","description":"Add focus trapping in modal and aria attributes","status":"done"},
+    {"id":"t5","title":"Seed task with formatting","description":"Try **bold**, _italic_ and `code` in description","status":"inprogress"}
+  ]
+}
